@@ -400,6 +400,6 @@ int Scene::loadGLTF(string filename, Geom& geom) {
     
     /*std::cout << geom.aabb_min.x << " " << geom.aabb_min.y << " " << geom.aabb_min.z << endl;
     std::cout << geom.aabb_max.x << " " << geom.aabb_max.y << " " << geom.aabb_max.z << endl;*/
-    std::cout << primitives.size() << " " << geom.primBegin << " " << geom.primEnd << std::endl;
+    //std::cout << primitives.size() << " " << geom.primBegin << " " << geom.primEnd << std::endl;
     return 1;
 }
