@@ -24,15 +24,16 @@ int startupIterations = 0;
 int lastLoopIterations = 0;
 bool ui_showGbuffer = false;
 bool ui_denoise = false;
-int ui_filterSize = 80;
-float ui_colorWeight = 0.45f;
-float ui_normalWeight = 0.35f;
-float ui_positionWeight = 0.2f;
+int ui_filterSize = 300;
+float ui_colorWeight = 132.353f;
+float ui_normalWeight = 0.245f;
+float ui_positionWeight = 1.324f;
 bool ui_saveAndExit = false;
 
 static bool camchanged = true;
 static float dtheta = 0, dphi = 0;
 static glm::vec3 cammove;
+uchar4* pbo_dptr = NULL;
 
 float zoom, theta, phi;
 glm::vec3 cameraPosition;
@@ -106,6 +107,7 @@ void saveImage() {
         for (int y = 0; y < height; y++) {
             int index = x + (y * width);
             glm::vec3 pix = renderState->image[index];
+            //glm::vec3 pix = glm::vec3(pbo_dptr[index].x, pbo_dptr[index].y, pbo_dptr[index].z);
             img.setPixel(width - 1 - x, y, glm::vec3(pix) / samples);
         }
     }
@@ -154,7 +156,6 @@ void runCuda() {
         pathtraceInit(scene);
     }
 
-    uchar4* pbo_dptr = NULL;
     cudaGLMapBufferObject((void**)&pbo_dptr, pbo);
 
     if (iteration < ui_iterations) {

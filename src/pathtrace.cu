@@ -22,6 +22,7 @@
 #include "intersections.h"
 #include "interactions.h"
 #include "main.h"
+#include "timer.h"
 
 #define ERRORCHECK 1
 #define CACHE_INTERSECTION 1
@@ -33,10 +34,16 @@
 #define RED 0
 #define GREEN 0
 #define BLUE 0
+#define POSBUFFER 1
+#define NORMALBUFFER 1
 
 #define FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #define checkCUDAError(msg) checkCUDAErrorFn(msg, FILENAME, __LINE__)
 
+PerformanceTimer& timer() {
+    static PerformanceTimer timer;
+    return timer;
+    }
     void checkCUDAErrorFn(const char* msg, const char* file, int line) {
 #if ERRORCHECK
         cudaDeviceSynchronize();
@@ -253,9 +260,16 @@
         int idx = blockIdx.x * blockDim.x + threadIdx.x;
         if (idx < num_paths)
         {
-            gBuffer[idx].t = shadeableIntersections[idx].t;
+#if POSBUFFER
+            gBuffer[idx].pos = getPointOnRay(pathSegments[idx].ray, shadeableIntersections[idx].t);
+#endif
+#if NORMALBUFFER
             gBuffer[idx].normal = shadeableIntersections[idx].surfaceNormal;
-            gBuffer[idx].pos = glm::normalize(shadeableIntersections[idx].pos);
+#endif
+            gBuffer[idx].t = shadeableIntersections[idx].t;
+            
+            //gBuffer[idx].pos = glm::normalize(shadeableIntersections[idx].pos);
+            
         }
     }
 
@@ -579,7 +593,7 @@
 
         // 1D block for path tracing
         const int blockSize1d = 128;
-        //timer().startGpuTimer();
+        timer().startGpuTimer();
 
         ///////////////////////////////////////////////////////////////////////////
 
@@ -729,7 +743,9 @@
         // Retrieve image from GPU
         cudaMemcpy(hst_scene->state.image.data(), dev_image,
             pixelcount * sizeof(glm::vec3), cudaMemcpyDeviceToHost);
-        //timer().endGpuTimer();
+        timer().endGpuTimer();
+        //printElapsedTime(timer().getGpuElapsedTimeForPreviousOperation(),
+        //    "(Main Program)");
         checkCUDAError("pathtrace");
     }
 
@@ -747,14 +763,13 @@
 
         glm::vec3 kernel = glm::vec3(1 / 16.f, 1 / 4.f, 3 / 8.f);
 
-        glm::vec3 sum{ 0.0 };
-        float cum_w = 0.0;
+        glm::vec3 sum{ 0.0f };
+        float cum_w = 0.0f;
         for (int dy = -2; dy <= 2; ++dy) {
             for (int dx = -2; dx <= 2; ++dx) {
                 const int u = glm::clamp(int(idx_x + dx * step_width), 0, resolution.x);
                 const int v = glm::clamp(int(idx_y + dy * step_width), 0, resolution.y);
                 const int uvIdx = u + v * resolution.x;
-
 
                 const glm::vec3 ctemp = in[uvIdx];
                 glm::vec3 t = cval - ctemp;
@@ -763,7 +778,7 @@
 
                 const glm::vec3 ntemp = gBuffer[uvIdx].normal;
                 t = nval - ntemp;
-                dist2 = max(dist2 / (step_width * step_width), 0.0f);
+                dist2 = max(glm::dot(t, t) / (step_width * step_width), 0.0f);
                 const float n_w = min(exp(-dist2 / n_phi), 1.0f);
 
                 const glm::vec3 ptemp = gBuffer[uvIdx].pos;
@@ -813,16 +828,18 @@
 
         int pixelCount = cam.resolution.x * cam.resolution.y;
         cudaMemcpy(dev_denoised_image, dev_image, pixelCount * sizeof(glm::vec3), cudaMemcpyDeviceToDevice);
+
+        timer().startGpuTimer();
+
         for (int step_width = 1; step_width <= filterSize; step_width *= 2) {
             atrousFilter << < blocksPerGrid2d, blockSize2d >> > (cam.resolution, dev_denoised_image, dev_denoised_image_out, dev_gBuffer, c_phi, n_phi, p_phi, step_width);
 
-            glm::vec3* tmp = dev_denoised_image_out;
-            dev_denoised_image_out = dev_denoised_image;
-            dev_denoised_image = dev_denoised_image_out;
+            std::swap(dev_denoised_image, dev_denoised_image_out);
         }
 
-
-        cudaMemcpy(hst_scene->state.image.data(), dev_denoised_image, pixelCount * sizeof(glm::vec3), cudaMemcpyDeviceToHost);
+        timer().endGpuTimer();
+        //printElapsedTime(timer().getGpuElapsedTimeForPreviousOperation(),
+        //    "(Denoiser)");
     }
 
     void showDenoise(uchar4* pbo, int iter) {
@@ -831,8 +848,11 @@
         const dim3 blocksPerGrid2d(
             (cam.resolution.x + blockSize2d.x - 1) / blockSize2d.x,
             (cam.resolution.y + blockSize2d.y - 1) / blockSize2d.y);
+        const int pixelCount = cam.resolution.x * cam.resolution.y;
         // Send results to OpenGL buffer for rendering
         sendImageToPBO << <blocksPerGrid2d, blockSize2d >> > (pbo, cam.resolution, iter, dev_denoised_image);
+
+        cudaMemcpy(hst_scene->state.image.data(), dev_denoised_image_out, pixelCount * sizeof(glm::vec3), cudaMemcpyDeviceToHost);
     }
 
 
