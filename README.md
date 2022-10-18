@@ -1,6 +1,5 @@
 ## <div align="center"> University of Pennsylvania, CIS 565: GPU Programming and Architecture </div>
 # <div align="center"> CUDA Path Tracer </div>
-================
 
 * Shutong Wu
   * [LinkedIn](https://www.linkedin.com/in/shutong-wu-214043172/)
