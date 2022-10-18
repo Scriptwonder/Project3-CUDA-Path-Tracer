@@ -1,31 +1,31 @@
-CUDA Path Tracer
+## <div align="center"> University of Pennsylvania, CIS 565: GPU Programming and Architecture </div>
+# <div align="center"> CUDA Path Tracer </div>
 ================
-
-**University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 3**
 
 * Shutong Wu
   * [LinkedIn](https://www.linkedin.com/in/shutong-wu-214043172/)
   * [Email](shutong@seas.uepnn.edu)
 * Tested on: Windows 10, i7-10700K CPU @ 3.80GHz, RTX3080, SM8.6, Personal Computer 
 
+## Overview
 ![penn](./img/cornell.2022-10-08_04-17-17z.1980samp.png)
+- In this project, I implemented GPU Path Tracer with multiple features using C++ and CUDA framework.
 
-In this project, I implemented GPU Path Tracer with multiple features and learned the foudamentals of path tracing and physical-based rendering.
-
-## Feature List
+## Table of Contents
 ### Core Features 
-- Shading kernel with BSDF Evaluation for Diffuse and Specular
-- Path continuation/termination using Stream Compaction
-- Toggleable ray sorting/first-bounce caching
+- [Shading kernel with BSDF Evaluation for Diffuse and Specular](#shading-kernel-with-bsdf-evaluation-for-diffusespecularrefraction)
+- [Path continuation/termination using Stream Compaction](#stream-compaction--ray-sorting--first-bounce-caching)
+- [Toggleable ray sorting/first-bounce caching](#stream-compaction--ray-sorting--first-bounce-caching)
+- [CUDA Denoiser](#denoising-showcase)
 
 ### Visual and Performance Features
-- Refraction
-- Physically-based Depth of Field
-- Stochastic Sampled Antialiasing
-- glTF mesh loading with AABB Bounding Box
-- Texture Mapping and Bump Mapping
-- Direct Lighting
-- Naive Post Processing
+- [Refraction](#shading-kernel-with-bsdf-evaluation-for-diffusespecularrefraction)
+- [Physically-based Depth of Field](#depth-of-field)
+- [Stochastic Sampled Antialiasing](#stochastic-anti-aliasing)
+- [glTF mesh loading with AABB Bounding Box](#mesh-loading-and-texture-mapping)
+- [Texture Mapping and Bump Mapping](#mesh-loading-and-texture-mapping)
+- [Direct Lighting](#direct-lighting)
+- [Naive Post Processing](#naive-post-processing)
 
 ### Shading Kernel With BSDF Evaluation for Diffuse/Specular/Refraction
 The first part I did was to implement the basic BSDF evaluation, where reflection/refraction/diffusion are distributed based on every object's material, and refraction is distributed based on Fresnel's computation and Schlick's approximation. Here is a picture with three different kinds of material in it.
@@ -85,10 +85,8 @@ An RGB color tinting is also implemented using an extra shader.
 ![](img/cornell.2022-10-08_01-26-28z.1005samp.png)
 
 
-CUDA Denoiser
-================
-
-**University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 4**
+## <div align="center"> University of Pennsylvania, CIS 565: GPU Programming and Architecture </div>
+# <div align="center"> Path Tracer Denoiser </div>
 
 * Shutong Wu
   * [LinkedIn](https://www.linkedin.com/in/shutong-wu-214043172/)
@@ -97,38 +95,38 @@ CUDA Denoiser
 
 In this Project, We Implement the Edge-Avoiding À-Trous Wavelet Denoiser for our previous Path-Tracer on Project 3.
 
-### Denoising Showcase
+## Denoising Showcase
 Denoise On      |  Denoise Off
 :-------------------------:|:-------------------------:
 ![](img/filtersize15%201.14.png)   |  ![](img/100ssp.png)
 
-### Performance Analysis
-#### Denoising Time Taken
+## Performance Analysis
+### Denoising Time Taken
 We use cornell_ceiling_light/Basic/Penn as the scenes for testing denoise time. They represent different scene complexity. The filter sizes are all set to 100. The following results are the time taken for denoising.
 Cornell_ceiling_light       |  Basic    |     DoF
-:-------------------------:|:-------------------------:|:-------------------------
+:-------------------------:|:-------------------------:|:-------------------------:
 ![](./img/filtersize15%201.14.png)   |  ![](./img/bsdf.png)  |  ![](./img/cornell.2022-10-08_04-17-17z.1980samp.png)
 1.98ms    |  4.49ms  |  5.35ms
 
-Complex scenes will take more time to do denoise since the three buffers needed for denoising are less consistent in value in complex scenes. And this is considered normal because complex scenes will always take more time to render than simple scenes.<br>
-Without denoising the Cornell_ceiling_light will take 40ms to do one sampling, so adding denoising does not add significant overhead to the whole rendering process especially when we need to render many iterations(and only one last-step denoising).
+- Complex scenes will take more time to do denoise since the three buffers needed for denoising are less consistent in value in complex scenes. And this is considered normal because complex scenes will always take more time to render than simple scenes.<br>
+- Without denoising the Cornell_ceiling_light will take 40ms to do one sampling, so adding denoising does not add significant overhead to the whole rendering process especially when we need to render many iterations(and only one last-step denoising).
 
 
-#### Denoising Iterations Taken
+### Denoising Iterations Taken
 Denoise On      |  Denoise Off
 :-------------------------:|:-------------------------:
 ![](img/150ssp.png)   |  ![](img/254ssp.png)
 - The left image takes 150 ssp to look smooth on the edge, while the right image takes 250ssp to look smooth enough, even though it still has some noises that will only disappear after 500 iterations or more.
 - A noticeable find is that when iterations are large enough for the image without denoising to become smooth, then turning on denoising will not improve visual performance too much. With this find, I think denoising is most useful when dealing with significant complex scenes like Sponza, where every iteration will take comparatively more time to render.
 
-#### Denoising at Different Resolutions
+### Denoising at Different Resolutions
 Still used Cornell_ceiling_light for this test;
 ![](./img/Rendering%20Time%20with%20Different%20Resolutions(Less%20the%20better).png)
 ![](./img/Denoise%20Time%20with%20Different%20Resolutions(Less%20the%20better).png)
 In these two images we can see denoise time increases linearly as resolution increases since with more pixels to render on screen, both the main rendering and denoising will handle more work than before.
 
-#### Denoising with Different Filter Sizes
-##### Visual Results
+### Denoising with Different Filter Sizes
+#### Visual Results
 FilterSize15       |  FilterSize125    |     FilterSize300
 :-------------------------:|:-------------------------:|:-------------------------
 ![](./img/filtersize15%201.14.png)   |  ![](./img/filtersize125%202.10.png)  |  ![](./img/filtersize300%202.525.png)
@@ -136,13 +134,13 @@ FilterSize15       |  FilterSize125    |     FilterSize300
 - For Small-Scale scenes like this one, filterSize below 100 and above 15 might be the best solution
 - Big filterSize often smoothes too much and results in pixels getting smoothed out(a noticeable difference in the corners of the image)
 
-##### Performance
+#### Performance
 ![](./img/Runtime%20with%20different%20FilterSize(lower%20the%20better).png)
 - The time increases as filterSize increases, but in a log(n) pattern. It is simply because our iteration loop in the Atrous filter is a for loop with an iteration time of log2(filterSize).
 
 
 
-#### Denoising with different material types
+### Denoising with different material types
 Denoise On 100 SPP     |  Denoise Off 100 SPP   | Denoise On But With Big ColorWeight
 :-------------------------:|:-------------------------:|:--------------------------:|
 ![](img/refract1.png)   |  ![](img/cornell.2022-10-18_14-14-49z.78samp.png) | ![](img/refract.png)
@@ -151,7 +149,7 @@ Denoise On 100 SPP     |  Denoise Off 100 SPP   | Denoise On But With Big ColorW
 - Perfectly diffuse material also works nicely as the wall in Cornell scene showed;
 - For refractive material, it is not smoothed out nicely. At earlier iteration, its visual performance is somehow worse than the refractive sphere without denoising. It is also dependent on the color weights that we set; with inappropriate color weigh, the denoising effect will look less realistic.
 
-#### Denoising with different scenes
+### Denoising with different scenes
 - During my experiment, I found scenes with more emissive/reflective materials will generate better denoising results, while scenes with refractive materials might not look that good or realistic with denoising. My assumptions are without refractive or rough materials rays will scatter less randomly, and with these materials, denoising might smooth out too many refracted nuanced rays.
 - Complex scenes will take more time to denoise due to their variance in terms of object and material.
 
