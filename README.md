@@ -120,7 +120,7 @@ Denoise On      |  Denoise Off
 - A noticeable find is that when iterations are large enough for the image without denoising to become smooth, then turning on denoising will not improve visual performance too much. With this find, I think denoising is most useful when dealing with significant complex scenes like Sponza, where every iteration will take comparatively more time to render.
 
 ### Denoising at Different Resolutions
-Still used Cornell_ceiling_light for this test;
+Still used Cornell_ceiling_light for this test;<br />
 ![](./img/Rendering%20Time%20with%20Different%20Resolutions(Less%20the%20better).png)
 ![](./img/Denoise%20Time%20with%20Different%20Resolutions(Less%20the%20better).png)
 In these two images we can see denoise time increases linearly as resolution increases since with more pixels to render on screen, both the main rendering and denoising will handle more work than before.
