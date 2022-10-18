@@ -106,7 +106,7 @@ Denoise On      |  Denoise Off
 #### Denoising Time Taken
 We use cornell_ceiling_light/Basic/Penn as the scenes for testing denoise time. They represent different scene complexity. The filter sizes are all set to 100. The following results are the time taken for denoising.
 Cornell_ceiling_light       |  Basic    |     DoF
-:-------------------------:|:-------------------------:|:-------------------------
+:-------------------------:|:-------------------------:|:-------------------------:
 ![](./img/filtersize15%201.14.png)   |  ![](./img/bsdf.png)  |  ![](./img/cornell.2022-10-08_04-17-17z.1980samp.png)
 1.98ms    |  4.49ms  |  5.35ms
 
