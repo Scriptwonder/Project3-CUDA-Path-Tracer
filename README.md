@@ -30,11 +30,11 @@
 ### Shading Kernel With BSDF Evaluation for Diffuse/Specular/Refraction
 The first part I did was to implement the basic BSDF evaluation, where reflection/refraction/diffusion are distributed based on every object's material, and refraction is distributed based on Fresnel's computation and Schlick's approximation. Here is a picture with three different kinds of material in it.
 ![BSDF](./img/bsdf.png)
-Left: Diffuse Material Colored with Klein Blue<br />
-Middle: Perfect Specular<br />
-Right: Refractive with an index of refraction of 1.52(Glass)
+- Left: Diffuse Material Colored with Klein Blue<br />
+- Middle: Perfect Specular<br />
+- Right: Refractive with an index of refraction of 1.52(Glass)
 
-Another Refraction:
+Another Refraction:<br />
 ![Refraction](./img/refraction.png)
 
 ### Stream Compaction & Ray Sorting & First Bounce Caching
@@ -94,6 +94,8 @@ An RGB color tinting is also implemented using an extra shader.
 * Tested on: Windows 10, i7-10700K CPU @ 3.80GHz, RTX3080, SM8.6, Personal Computer 
 
 In this Project, We Implement the Edge-Avoiding À-Trous Wavelet Denoiser for our previous Path-Tracer on Project 3.
+- [ShowCase](#denoising-showcase)
+- [Performance Analysis](#performance-analysis)
 
 ## Denoising Showcase
 Denoise On      |  Denoise Off
@@ -122,7 +124,7 @@ Denoise On      |  Denoise Off
 ### Denoising at Different Resolutions
 Still used Cornell_ceiling_light for this test;<br />
 ![](./img/Rendering%20Time%20with%20Different%20Resolutions(Less%20the%20better).png)
-![](./img/Denoise%20Time%20with%20Different%20Resolutions(Less%20the%20better).png)
+![](./img/Denoise%20Time%20with%20Different%20Resolutions(Less%20the%20better).png)<br />
 In these two images we can see denoise time increases linearly as resolution increases since with more pixels to render on screen, both the main rendering and denoising will handle more work than before.
 
 ### Denoising with Different Filter Sizes
