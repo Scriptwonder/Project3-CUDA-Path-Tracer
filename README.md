@@ -157,9 +157,9 @@ Denoise On 100 SPP     |  Denoise Off 100 SPP   | Denoise On But With Big ColorW
 ### Bloopers
 ![](img/bloop1.png)
 ![](img/bloop2.png)
-![](img/bloop3.png)
+![](img/bloop3.png)<br />
 This one is defined as a cube, but there is a space after cube("cube "), so it got generated as a sphere(Undefined behavior I assume)
-![](img/cornell.2022-10-17_16-04-48z.1samp.png)
+![](img/cornell.2022-10-17_16-04-48z.1samp.png)<br />
 Wrong Color Weight for denoising :)
 
 
